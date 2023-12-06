@@ -2,6 +2,23 @@
 const mongoose = require('mongoose');
 
 
+const ratingsSchema = new mongoose.Schema({
+    userId:{
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "user",
+        required: true,
+    },
+    userComment:{
+        type:String
+    },
+    productRating:{
+        type:Number,
+        min: 0,
+        max: 5,
+    }
+})
+
+
 const productSchema = new mongoose.Schema({
     brand:{
         type: String,
@@ -36,13 +53,37 @@ const productSchema = new mongoose.Schema({
         default: ()=> Date.now(),
     },
     updatedAt: Date,
-    description: String
+    description: String,
+    productReviews:[ratingsSchema],
+    productAverageRating: Number,
 });
 
 productSchema.pre('save', function(next){
     this.updatedAt = Date.now();
     next();
 });
+
+productSchema.methods.updateRating = async function () {
+    const currentProduct = await this.constructor.findOne({ _id: this._id });
+    
+    if (currentProduct.productReviews && currentProduct.productReviews.length > 0) {
+        // const totalRating = currentProduct.productReviews.reduce((sum, review) => sum + review.productRating, 0);
+        // let averageRating = totalRating / currentProduct.productReviews.length;
+
+        const totalRating = currentProduct.productReviews.reduce((sum, currentValue) => {
+            if (currentValue.productRating) {
+                return sum + currentValue.productRating;
+            } else {
+                return sum;
+            }
+        }, 0);
+
+        let averageRating = totalRating / currentProduct.productReviews.filter(item => item.productRating).length;
+        averageRating = parseFloat(averageRating.toFixed(1));
+        currentProduct.productAverageRating = averageRating;
+        await currentProduct.save();
+    }
+};
 
 
 const product = mongoose.model('product', productSchema);

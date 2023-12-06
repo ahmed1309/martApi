@@ -19,7 +19,7 @@ exports.createUser = async (req, res) => {
 
     try {
         const data = await user.save()
-        res.send('saved successfuly');
+        res.status(200).send({message: 'User created successfuly'});
         
     } catch (error) {
         res.status(500).send({
@@ -113,11 +113,19 @@ exports.signIN = (req, res, next) => {
     })(req, res, next);
 }
 
+exports.signOut = (req, res) => {
+    req.logout(function(err) {
+        if (err) {
+            return next(err);
+        }
+        res.send({message: 'Logged Out'});
+    });
+}
 exports.isLoggedIn = (req, res, next)=>{
     if (req.isAuthenticated()) {
         return next();
     }
-    res.send('Unauthorized, please login');
+    res.status(401).send({message: 'Unauthorized, please login'});
 }
 
 

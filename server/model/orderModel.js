@@ -35,14 +35,25 @@ const ordersSchema = new mongoose.Schema({
         type: Date,
         default: ()=> Date.now(),
     },
+    currentBill: Number,
 });
 
-// productSchema.pre('save', function(next){
-//     this.updatedAt = Date.now();
-//     next();
-// });
+ordersSchema.methods.updatePrice= async(userID)=>{
+    const currentOrder = await order.findOne({
+        userId: userID,
+        status: "Cart"
+    })
+    .populate({
+        path: "orderDetails.product"
+    })
+    let totalPrice = 0;
+    currentOrder?.orderDetails.forEach(element => {
+        totalPrice += element.productQty * element.product.price;
+    });
+    currentOrder.currentBill = totalPrice;
+    currentOrder.save();
+}
 
-
-// const order = mongoose.model('order', ordersSchema);
+const order = mongoose.model('order', ordersSchema);
 module.exports = mongoose.model('order', ordersSchema);
 

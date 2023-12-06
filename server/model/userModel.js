@@ -8,14 +8,6 @@ const passportLocalMongoose = require('passport-local-mongoose');
 
 
 
-// // Email validation
-// const validateEmail = {
-//     validator: function (email) {
-//         return validator.validate(email);
-//     },
-//     props: email => `${email.value} is not a valid email`
-// };
-
 
 
 
@@ -71,8 +63,8 @@ usersSchema.pre('save', function(next){
 
 usersSchema.plugin(passportLocalMongoose);
 
-const user = mongoose.model('user', usersSchema);
+// const user = mongoose.model('user', usersSchema);
 
-module.exports =  mongoose.model('user', usersSchema);;
+module.exports =  mongoose.model('user', usersSchema);
 
 

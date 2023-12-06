@@ -1,67 +1,79 @@
+const numbers = [
+    {comment: 'bla bla bla', rating: 1},
+    {comment: 'bla bla bla', rating: 2},
+    {comment: 'bla bla bla'},
+    {comment: 'bla bla bla', rating: 3},
+    {comment: 'bla bla bla', rating: 4},
+    {comment: 'bla bla bla'},
+    {comment: 'bla bla bla', rating: 5},
+];
 
-const fetch = require('node-fetch');
-
-// Set the IP address and port of your server
-const serverAddress = 'http://192.168.18.20:8080';
-
-// Authentication credentials
-const credentials = {
-  email: 'mahmed@email.com',
-  password: '123456789abc',
-};
-
-// Login endpoint
-const loginEndpoint = `${serverAddress}/api/signin`;
-
-// Orders endpoint
-const ordersEndpoint = `${serverAddress}/api/order`;
-
-// Function to authenticate and get a token
-async function authenticate() {
-  try {
-    const response = await fetch(loginEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(credentials),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      console.log('Login successful:', data.message);
-
-      // Call the function to fetch orders after successful login
-      await fetchOrders(data.user);
+const totalRating = numbers.reduce((sum, currentValue) => {
+    if (currentValue.rating) {
+        return sum + currentValue.rating;
     } else {
-      console.error('Login failed:', data.message);
+        return sum;
     }
-  } catch (error) {
-    console.error('Error during authentication:', error.message);
-  }
-}
+}, 0);
 
-// Function to fetch orders
-async function fetchOrders(user) {
-  try {
-    const response = await fetch(ordersEndpoint, {
-      headers: {
-        Authorization: `Bearer ${user.token}`, // Assuming the server sends a token upon successful login
-      },
-    });
+const numberOfRatings = numbers.filter(item => item.rating).length;
+const averageRating = totalRating / numberOfRatings;
 
-    const data = await response.json();
+console.log(averageRating);
 
-    if (response.ok) {
-      console.log('Orders:', data);
-    } else {
-      console.error('Error fetching orders:', data.message);
-    }
-  } catch (error) {
-    console.error('Error during fetch orders:', error.message);
-  }
-}
+// const x 
+// =22
+// const y
+// =22
 
-// Call the authentication function
-authenticate();
+// console.log(x
+//     +y);
+
+// console.log("jshf gafs jhas \
+// ksaj");
+
+
+// const abc = function(n){
+//     let a = n -1;
+//     return function(){
+//         a +=1
+//         return a;
+//     }
+// }
+
+// const abc1 = abc(10);
+
+// console.log(abc());
+// console.log(abc1());
+// console.log(abc1());
+
+
+// /**
+//  * @param {string} val
+//  * @return {Object}
+//  */
+// var expect = function(val) {
+//     // throw new Error("bla bla bla bla");
+//     return {
+//         notToBe: function(val2) {
+//             if (val !== val2) {
+//                 return true;
+//             } else {
+//                 throw new Error("Equal");
+//             }
+//         },
+//         toBe: function(val1) {
+//             if (val === val1) {
+//                 return true;
+//             } else {
+//                 throw new Error("Not Equal");
+//             }
+//         }
+//     };
+// };
+
+
+//    // true
+//   console.log(expect(5).toBe(5));
+//     // expect(5).toBe(3);
+//   expect(5).notToBe(5); // throws "Equal"

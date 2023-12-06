@@ -1,4 +1,5 @@
 const Product = require('../model/productModel');
+const { ObjectId } = require('mongodb');
 
 exports.create = async (req, res) => {
     if (!req.body) {
@@ -31,7 +32,7 @@ exports.read = (req, res) => {
                     res.status(404).send({ message: `Product not found with ID: ${id}` });
                 }
                 else {
-                    res.status(400).send(data);
+                    res.status(200).send(data);
                 }
             })
             .catch(err => {
@@ -109,5 +110,79 @@ exports.delete = (req, res) => {
             res.status(500).send(err);
         });
 }
+
+
+
+
+exports.rateProduct = async (req, res)=> {
+    if(!req.body){
+        res.send({Message: 'Content can not be empty', success: false});
+        return;
+    }
+    const reviewDetails = {
+        userId: req.user.id,
+        userComment: req.body.userComment,
+        productRating: req.body.productRating
+    }
+
+    try {
+        const product = await Product.findOne({
+            _id: req.body.productId
+        });
+        const existingReview = product.productReviews.find(element=>
+            element.userId.equals(new ObjectId(req.user.id))
+        );
+
+        if (existingReview) {
+            existingReview.userComment = req.body.userComment;
+            existingReview.productRating = req.body.productRating;
+            await product.save();
+            product.updateRating();
+            res.status(200).send({message: 'Review updated successfuly'});
+        }
+        else{
+            product.productReviews.push(reviewDetails);
+            await product.save();
+            product.updateRating();
+            res.status(200).send({message: 'Review added successfuly'});
+        }
+    } catch (error) {
+        res.status(400).send({ Error: `${error}`, success: false });
+    }
+}
+
+exports.fetchProductReviews = async (req, res)=> {
+
+    try {
+        const product = await Product.findOne({ _id: req.params.id })
+        .populate({
+        path: 'productReviews',
+        populate: {
+            path: 'userId',
+            model: 'user',
+            select: 'name',
+        },
+        });
+    
+    // Extracting the product reviews with user names
+    const updatedProductReviews = product.productReviews.map(review => ({
+        userName: review.userId.name,
+        userComment: review.userComment,
+        productRating: review.productRating,
+        _id: review._id,
+    }));
+    productAverageRating = product.productAverageRating;
+    const response = {
+        Reviews: updatedProductReviews,
+        AverageRating: productAverageRating,
+      };
+    // Sending the response with user names
+    res.status(200).json(response);
+  
+    } catch (error) {
+        res.status(400).send({ Error: `${error}`, success: false });
+    }
+}
+
 
 
